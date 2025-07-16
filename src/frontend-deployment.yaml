@@ -1,10 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: api
+  name: frontend
   namespace: vote
   labels:
-    role: api
+    role: frontend
     env: demo
 spec:
   replicas: 2
@@ -15,29 +15,19 @@ spec:
       maxUnavailable: 25%
   selector:
     matchLabels:
-      role: api
+      role: frontend
   template:
     metadata:
       labels:
-        role: api
+        role: frontend
     spec:
       containers:
-      - name: api
-        image: cloudacademydevops/api:v3
+      - name: frontend
+        image: cloudacademydevops/frontend:v11
         imagePullPolicy: Always
         env:
-          - name: MONGO_CONN_STR
-            value: mongodb://mongo-0.mongo,mongo-1.mongo,mongo-2.mongo:27017/langdb?replicaSet=rs0
-          - name: MONGO_USERNAME
-            valueFrom:
-              secretKeyRef:
-                name: mongodb-secret
-                key: username
-          - name: MONGO_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: mongodb-secret
-                key: password
+          - name: REACT_APP_APIHOSTPORT
+            value: $API_ELB_PUBLIC_FQDN #add your API_Load_Balancer DNS manually here if app does not run
         ports:
         - containerPort: 8080
         livenessProbe:
